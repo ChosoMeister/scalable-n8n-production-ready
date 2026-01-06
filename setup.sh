@@ -301,6 +301,9 @@ cat > userlist.txt << EOF
 "n8n_user" "${DB_PASSWORD}"
 EOF
 
+# Set correct permissions for PgBouncer files (required for Docker container)
+chmod 644 pgbouncer.ini userlist.txt
+
 echo ""
 echo "✅ Setup complete!"
 echo ""
