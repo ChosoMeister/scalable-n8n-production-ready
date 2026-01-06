@@ -56,16 +56,16 @@
 
 ```
 scalable-n8n-production-ready/
-├── compose.yaml           # Docker Compose اصلی
-├── .env-main.example      # نمونه تنظیمات n8n main
-├── .env-worker.example    # نمونه تنظیمات workers
-├── .env-db.example        # نمونه تنظیمات PostgreSQL + PgBouncer  
-├── .env-redis.example     # نمونه پسورد Redis
-├── .gitignore             # فایل‌های ignore شده در git
-├── pgbouncer.ini          # تنظیمات PgBouncer
-├── userlist.txt           # یوزرهای PgBouncer
-├── init-data.sh           # اسکریپت ایجاد یوزر DB
-└── README.md              # این فایل
+├── compose.yaml             # Docker Compose اصلی
+├── .env-main.example        # نمونه تنظیمات n8n main
+├── .env-worker.example      # نمونه تنظیمات workers
+├── .env-db.example          # نمونه تنظیمات PostgreSQL + PgBouncer  
+├── .env-redis.example       # نمونه پسورد Redis
+├── .gitignore               # فایل‌های ignore شده در git
+├── pgbouncer.ini.example    # نمونه تنظیمات PgBouncer
+├── userlist.txt.example     # نمونه یوزرهای PgBouncer
+├── init-data.sh             # اسکریپت ایجاد یوزر DB
+└── README.md                # این فایل
 ```
 
 ---
@@ -154,10 +154,12 @@ WEBHOOK_URL=https://n8n-webhook.yourdomain.com
 
 فایل `userlist.txt`:
 ```txt
-"lucas" "asupercoolpassword2025"
+"n8n_user" "YOUR_DB_PASSWORD"
 ```
 
-> ⚠️ برای امنیت بیشتر از md5 hash استفاده کنید: `"lucas" "md5<hash>"`
+> ⚠️ برای امنیت بیشتر از md5 hash استفاده کنید: `"n8n_user" "md5<hash>"`
+>
+> تولید md5: `echo -n "YOUR_PASSWORD+n8n_user" | md5sum`
 
 ---
 
@@ -170,7 +172,7 @@ git clone https://github.com/ChosoMeister/scalable-n8n-production-ready.git
 cd scalable-n8n-production-ready
 ```
 
-### 2. کپی فایل‌های env
+### 2. کپی فایل‌های تنظیمات
 
 ```bash
 # کپی فایل‌های نمونه
@@ -178,6 +180,8 @@ cp .env-main.example .env-main
 cp .env-worker.example .env-worker
 cp .env-db.example .env-db
 cp .env-redis.example .env-redis
+cp pgbouncer.ini.example pgbouncer.ini
+cp userlist.txt.example userlist.txt
 ```
 
 ### 3. ویرایش فایل‌های env

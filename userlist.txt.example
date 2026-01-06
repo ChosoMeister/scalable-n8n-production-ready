@@ -1,0 +1,6 @@
+# PgBouncer userlist file
+# Format: "username" "password"
+# For production, use md5 hash: "username" "md5<hash>"
+# Generate md5: echo -n "password+username" | md5sum
+
+"n8n_user" "CHANGE_ME_DB_PASSWORD"

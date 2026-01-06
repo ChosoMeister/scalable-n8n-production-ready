@@ -38,3 +38,7 @@ docker-compose.override.yaml
 
 # ===== n8n local data (if any) =====
 .n8n/
+
+# ===== PgBouncer config files (contain passwords) =====
+pgbouncer.ini
+userlist.txt
