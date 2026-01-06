@@ -5,6 +5,26 @@
 
 set -e
 
+# Check for openssl dependency
+if ! command -v openssl &> /dev/null; then
+    echo ""
+    echo "❌ Error: openssl is not installed!"
+    echo ""
+    echo "   openssl is required to generate secure passwords."
+    echo "   Please install openssl first, then re-run this script."
+    echo ""
+    echo "   Install on Ubuntu/Debian:"
+    echo "      sudo apt update && sudo apt install openssl"
+    echo ""
+    echo "   Install on CentOS/RHEL:"
+    echo "      sudo yum install openssl"
+    echo ""
+    echo "   Install on macOS:"
+    echo "      brew install openssl"
+    echo ""
+    exit 1
+fi
+
 echo "🚀 Setting up n8n production environment..."
 echo ""
 
