@@ -1,10 +1,17 @@
 # 🚀 Scaling n8n with Docker Compose
 
-این پروژه یک **setup مقیاس‌پذیر برای n8n** است که از معماری **Queue Mode** استفاده می‌کند.
+[English](#english) | [فارسی](#فارسی)
 
 ---
 
-## معماری سیستم
+<a name="english"></a>
+## 🇬🇧 English
+
+This project is a **scalable setup for n8n** using the **Queue Mode** architecture.
+
+---
+
+### System Architecture
 
 ```
                     ┌─────────────────────────────────────────────────────────────┐
@@ -52,49 +59,49 @@
 
 ---
 
-## 📂 ساختار پروژه
+### 📂 Project Structure
 
 ```
 scalable-n8n-production-ready/
-├── compose.yaml             # Docker Compose اصلی
-├── setup.sh                 # ✨ اسکریپت نصب خودکار
-├── .env.example             # نمونه تنظیمات (همه در یک فایل)
-├── .gitignore               # فایل‌های ignore شده در git
-├── pgbouncer.ini.example    # نمونه تنظیمات PgBouncer
-├── userlist.txt.example     # نمونه یوزرهای PgBouncer
-├── init-data.sh             # اسکریپت ایجاد یوزر DB
-└── README.md                # این فایل
+├── compose.yaml             # Main Docker Compose file
+├── setup.sh                 # ✨ Automatic setup script
+├── .env.example             # Sample configuration (all in one file)
+├── .gitignore               # Files ignored by git
+├── pgbouncer.ini.example    # PgBouncer sample configuration
+├── userlist.txt.example     # PgBouncer users sample
+├── init-data.sh             # DB user creation script
+└── README.md                # This file
 ```
 
 ---
 
-## ⚙️ سرویس‌ها
+### ⚙️ Services
 
-| سرویس | Image | وظیفه | پورت |
-|-------|-------|-------|------|
-| **PostgreSQL 17** | `postgres:17` | دیتابیس اصلی | 5432 (internal) |
+| Service | Image | Purpose | Port |
+|---------|-------|---------|------|
+| **PostgreSQL 17** | `postgres:17` | Main database | 5432 (internal) |
 | **PgBouncer** | `edoburu/pgbouncer:v1.24.1-p0` | Connection Pooling | 6432 (internal) |
 | **Redis** | `redis:7-alpine` | Message Queue | 6379 (internal) |
 | **n8n Main** | `ghcr.io/chosomeister/n8n:enterprise` | Editor/API | 5678 |
-| **Worker** | `ghcr.io/chosomeister/n8n:enterprise` | اجرای workflows | - |
-| **Webhook Worker** | `ghcr.io/chosomeister/n8n:enterprise` | دریافت webhooks | 5679 |
+| **Worker** | `ghcr.io/chosomeister/n8n:enterprise` | Workflow execution | - |
+| **Webhook Worker** | `ghcr.io/chosomeister/n8n:enterprise` | Receive webhooks | 5679 |
 
 ---
 
-## 🔒 تنظیمات امنیتی
+### 🔒 Security Settings
 
-### Environment Variables در `.env-main`:
+#### Environment Variables in `.env-main`:
 
-| Variable | توضیح |
-|----------|-------|
-| `NODE_ENV=production` | حالت production برای Node.js |
-| `N8N_SECURE_COOKIE=true` | ارسال cookies فقط روی HTTPS |
-| `N8N_ENCRYPTION_KEY` | رمزنگاری credentials (باید منحصر به فرد باشد) |
-| `N8N_BLOCK_ENV_ACCESS_IN_NODE=true` | جلوگیری از دسترسی به env در Code nodes |
-| `N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true` | بررسی دسترسی فایل‌ها |
-| `QUEUE_BULL_REDIS_PASSWORD` | پسورد Redis |
+| Variable | Description |
+|----------|-------------|
+| `NODE_ENV=production` | Production mode for Node.js |
+| `N8N_SECURE_COOKIE=true` | Send cookies only over HTTPS |
+| `N8N_ENCRYPTION_KEY` | Credential encryption (must be unique) |
+| `N8N_BLOCK_ENV_ACCESS_IN_NODE=true` | Prevent env access in Code nodes |
+| `N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true` | Check file permissions |
+| `QUEUE_BULL_REDIS_PASSWORD` | Redis password |
 
-### تولید مقادیر امن:
+#### Generating Secure Values:
 
 ```bash
 # Encryption Key
@@ -109,16 +116,16 @@ openssl rand -base64 24
 
 ---
 
-## 🌐 تنظیمات دامنه
+### 🌐 Domain Settings
 
-این setup نیاز به **دو دامنه جداگانه** دارد:
+This setup requires **two separate domains**:
 
-| دامنه | سرویس | پورت داخلی |
-|-------|-------|------------|
+| Domain | Service | Internal Port |
+|--------|---------|---------------|
 | `https://n8n.yourdomain.com` | n8n Main (UI/API) | 5678 |
 | `https://n8n-webhook.yourdomain.com` | Webhook Worker | 5679 |
 
-در `.env-main`:
+In `.env-main`:
 ```env
 N8N_HOST=n8n.yourdomain.com
 N8N_PROTOCOL=https
@@ -128,42 +135,42 @@ WEBHOOK_URL=https://n8n-webhook.yourdomain.com
 
 ---
 
-## 📊 Resource Limits
+### 📊 Resource Limits
 
-| سرویس | Memory Limit | Memory Reserved |
-|-------|-------------|-----------------|
+| Service | Memory Limit | Memory Reserved |
+|---------|-------------|-----------------|
 | n8n Main | 2GB | 1GB |
 | Worker | 1GB | 512MB |
 | Webhook Worker | 1GB | 512MB |
 
 ---
 
-## 🔧 تنظیمات PgBouncer
+### 🔧 PgBouncer Configuration
 
-فایل `pgbouncer.ini`:
+`pgbouncer.ini` file:
 
-| Setting | مقدار | توضیح |
-|---------|-------|-------|
-| `pool_mode` | transaction | هر query اتصال جدید می‌گیرد |
-| `max_client_conn` | 1000 | حداکثر اتصال از clients |
-| `default_pool_size` | 50 | اتصالات همزمان به PostgreSQL |
-| `min_pool_size` | 5 | حداقل اتصالات باز |
-| `reserve_pool_size` | 20 | اتصالات اضطراری |
+| Setting | Value | Description |
+|---------|-------|-------------|
+| `pool_mode` | transaction | Each query gets a new connection |
+| `max_client_conn` | 1000 | Maximum connections from clients |
+| `default_pool_size` | 50 | Concurrent connections to PostgreSQL |
+| `min_pool_size` | 5 | Minimum open connections |
+| `reserve_pool_size` | 20 | Emergency connections |
 
-فایل `userlist.txt`:
+`userlist.txt` file:
 ```txt
 "n8n_user" "YOUR_DB_PASSWORD"
 ```
 
-> ⚠️ برای امنیت بیشتر از md5 hash استفاده کنید: `"n8n_user" "md5<hash>"`
+> ⚠️ For better security, use md5 hash: `"n8n_user" "md5<hash>"`
 >
-> تولید md5: `echo -n "YOUR_PASSWORD+n8n_user" | md5sum`
+> Generate md5: `echo -n "YOUR_PASSWORD+n8n_user" | md5sum`
 
 ---
 
-## ▶️ راه‌اندازی
+### ▶️ Getting Started
 
-### راه سریع (پیشنهادی)
+#### Quick Start (Recommended)
 
 ```bash
 git clone https://github.com/ChosoMeister/scalable-n8n-production-ready.git
@@ -172,55 +179,55 @@ cd scalable-n8n-production-ready
 docker compose up -d
 ```
 
-> اسکریپت setup به صورت خودکار پسوردهای امن تولید می‌کنه و همه فایل‌ها رو آماده می‌کنه.
+> The setup script automatically generates secure passwords and prepares all files.
 
-### راه دستی
+#### Manual Setup
 
 ```bash
 # 1. Clone
 git clone https://github.com/ChosoMeister/scalable-n8n-production-ready.git
 cd scalable-n8n-production-ready
 
-# 2. کپی فایل‌های نمونه
+# 2. Copy sample files
 cp .env.example .env
 cp pgbouncer.ini.example pgbouncer.ini
 cp userlist.txt.example userlist.txt
 
-# 3. تولید پسوردهای امن و جایگزینی در فایل‌ها
-nano .env           # تمام تنظیمات اینجاست
+# 3. Generate secure passwords and replace in files
+nano .env           # All settings are here
 nano pgbouncer.ini  # DB Password
 nano userlist.txt   # DB Password
 
-# 4. شروع
+# 4. Start
 docker compose up -d
 ```
 
-### دسترسی
+#### Access
 
 - **n8n Editor:** http://localhost:5678
 - **Webhook Worker:** http://localhost:5679
 
 ---
 
-## 📌 Scale کردن Workers
+### 📌 Scaling Workers
 
 ```bash
-# 3 worker
+# 3 workers
 docker compose up -d --scale worker=3
 
-# 5 worker
+# 5 workers
 docker compose up -d --scale worker=5
 ```
 
-**محاسبه ظرفیت:**
+**Capacity Calculation:**
 ```
 Workers × Concurrency = Total Parallel Executions
-5 workers × 10 concurrency = 50 workflow همزمان
+5 workers × 10 concurrency = 50 parallel workflows
 ```
 
 ---
 
-## 🔄 Workflow اجرا
+### 🔄 Execution Flow
 
 ```
 1. Trigger/Webhook ─────► n8n Main
@@ -244,7 +251,366 @@ Workers × Concurrency = Total Parallel Executions
 
 ---
 
-## 📋 تنظیمات Execution
+### 📋 Execution Settings
+
+In `.env-main`:
+
+| Variable | Value | Description |
+|----------|-------|-------------|
+| `EXECUTIONS_TIMEOUT` | 3600 | Maximum execution time (seconds) |
+| `EXECUTIONS_DATA_PRUNE` | true | Auto-delete old executions |
+| `EXECUTIONS_DATA_MAX_AGE` | 168 | Keep for 168 hours (7 days) |
+| `EXECUTIONS_DATA_SAVE_ON_ERROR` | all | Save all errors |
+| `EXECUTIONS_DATA_SAVE_ON_SUCCESS` | all | Save all successes |
+
+---
+
+### 🕐 Timezone
+
+```env
+GENERIC_TIMEZONE=Asia/Tehran
+TZ=Asia/Tehran
+```
+
+> Important for correct execution of Cron triggers and Schedule nodes
+
+---
+
+### 🔍 Useful Commands
+
+```bash
+# View status
+docker compose ps
+
+# Logs
+docker compose logs -f n8n
+docker compose logs -f worker
+docker compose logs -f webhook-worker
+
+# Stop
+docker compose down
+
+# Stop + delete volumes
+docker compose down -v
+
+# Restart a service
+docker compose restart n8n
+
+# Check config
+docker compose config
+```
+
+---
+
+### ⚠️ Important Notes
+
+#### 1. Reverse Proxy
+
+This setup **does not include a reverse proxy**. You need to configure separately:
+- Nginx
+- Traefik
+- Caddy
+- HAProxy
+
+#### 2. SSL/HTTPS
+
+Make sure to use HTTPS:
+- `N8N_SECURE_COOKIE=true` requires HTTPS
+- Webhooks are not secure without HTTPS
+
+#### 3. Backup
+
+Backup the volumes:
+- `db_storage` - Database
+- `n8n_storage` - n8n files
+
+```bash
+# Backup database
+docker compose exec postgres pg_dump -U lucas n8n > backup.sql
+```
+
+#### 4. N8N_TRUSTED_PROXIES
+
+If behind a reverse proxy:
+```env
+N8N_TRUSTED_PROXIES=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+```
+
+> ⚠️ **Never** use `*`!
+
+---
+
+### 📚 Resources
+
+- [n8n Documentation](https://docs.n8n.io/)
+- [n8n Queue Mode](https://docs.n8n.io/hosting/scaling/queue-mode/)
+- [n8n Environment Variables](https://docs.n8n.io/hosting/configuration/environment-variables/)
+- [PgBouncer Documentation](https://www.pgbouncer.org/config.html)
+
+---
+
+### ✅ Pre-Production Checklist
+
+- [ ] Unique `N8N_ENCRYPTION_KEY` is set
+- [ ] Strong `REDIS_PASSWORD` is set
+- [ ] Database passwords are strong
+- [ ] Real domains are configured
+- [ ] HTTPS is enabled
+- [ ] Reverse proxy is configured
+- [ ] You have a backup strategy
+- [ ] Monitoring is set up
+
+---
+---
+
+<a name="فارسی"></a>
+## 🇮🇷 فارسی
+
+این پروژه یک **setup مقیاس‌پذیر برای n8n** است که از معماری **Queue Mode** استفاده می‌کند.
+
+---
+
+### معماری سیستم
+
+```
+                    ┌─────────────────────────────────────────────────────────────┐
+                    │                         External                            │
+                    │   Users ──────┐                                             │
+                    │               ├──► Reverse Proxy (Nginx/Traefik)           │
+                    │   Webhooks ───┘            │                                │
+                    └────────────────────────────┼────────────────────────────────┘
+                                                 │
+                    ┌────────────────────────────┼────────────────────────────────┐
+                    │                   n8n Stack│                                │
+                    │                            ▼                                │
+                    │              ┌─────────────────────────┐                    │
+                    │              │      n8n Main           │                    │
+                    │              │   (Editor + API)        │                    │
+                    │              │      :5678              │                    │
+                    │              └───────────┬─────────────┘                    │
+                    │                          │                                  │
+                    │         ┌────────────────┼────────────────┐                 │
+                    │         ▼                ▼                ▼                 │
+                    │   ┌──────────┐    ┌──────────┐    ┌──────────────┐          │
+                    │   │ Worker 1 │    │ Worker N │    │Webhook Worker│          │
+                    │   │          │    │          │    │    :5679     │          │
+                    │   └────┬─────┘    └────┬─────┘    └──────┬───────┘          │
+                    │        │               │                 │                  │
+                    │        └───────────────┼─────────────────┘                  │
+                    │                        ▼                                    │
+                    │              ┌─────────────────────┐                        │
+                    │              │       Redis         │                        │
+                    │              │   (Message Queue)   │                        │
+                    │              └─────────────────────┘                        │
+                    │                        │                                    │
+                    │                        ▼                                    │
+                    │              ┌─────────────────────┐                        │
+                    │              │     PgBouncer       │                        │
+                    │              │ (Connection Pooler) │                        │
+                    │              └──────────┬──────────┘                        │
+                    │                         ▼                                   │
+                    │              ┌─────────────────────┐                        │
+                    │              │    PostgreSQL 17    │                        │
+                    │              │     (Database)      │                        │
+                    │              └─────────────────────┘                        │
+                    └─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 📂 ساختار پروژه
+
+```
+scalable-n8n-production-ready/
+├── compose.yaml             # Docker Compose اصلی
+├── setup.sh                 # ✨ اسکریپت نصب خودکار
+├── .env.example             # نمونه تنظیمات (همه در یک فایل)
+├── .gitignore               # فایل‌های ignore شده در git
+├── pgbouncer.ini.example    # نمونه تنظیمات PgBouncer
+├── userlist.txt.example     # نمونه یوزرهای PgBouncer
+├── init-data.sh             # اسکریپت ایجاد یوزر DB
+└── README.md                # این فایل
+```
+
+---
+
+### ⚙️ سرویس‌ها
+
+| سرویس | Image | وظیفه | پورت |
+|-------|-------|-------|------|
+| **PostgreSQL 17** | `postgres:17` | دیتابیس اصلی | 5432 (internal) |
+| **PgBouncer** | `edoburu/pgbouncer:v1.24.1-p0` | Connection Pooling | 6432 (internal) |
+| **Redis** | `redis:7-alpine` | Message Queue | 6379 (internal) |
+| **n8n Main** | `ghcr.io/chosomeister/n8n:enterprise` | Editor/API | 5678 |
+| **Worker** | `ghcr.io/chosomeister/n8n:enterprise` | اجرای workflows | - |
+| **Webhook Worker** | `ghcr.io/chosomeister/n8n:enterprise` | دریافت webhooks | 5679 |
+
+---
+
+### 🔒 تنظیمات امنیتی
+
+#### Environment Variables در `.env-main`:
+
+| Variable | توضیح |
+|----------|-------|
+| `NODE_ENV=production` | حالت production برای Node.js |
+| `N8N_SECURE_COOKIE=true` | ارسال cookies فقط روی HTTPS |
+| `N8N_ENCRYPTION_KEY` | رمزنگاری credentials (باید منحصر به فرد باشد) |
+| `N8N_BLOCK_ENV_ACCESS_IN_NODE=true` | جلوگیری از دسترسی به env در Code nodes |
+| `N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true` | بررسی دسترسی فایل‌ها |
+| `QUEUE_BULL_REDIS_PASSWORD` | پسورد Redis |
+
+#### تولید مقادیر امن:
+
+```bash
+# Encryption Key
+openssl rand -hex 32
+
+# Redis Password
+openssl rand -base64 24
+
+# Database Password
+openssl rand -base64 24
+```
+
+---
+
+### 🌐 تنظیمات دامنه
+
+این setup نیاز به **دو دامنه جداگانه** دارد:
+
+| دامنه | سرویس | پورت داخلی |
+|-------|-------|------------|
+| `https://n8n.yourdomain.com` | n8n Main (UI/API) | 5678 |
+| `https://n8n-webhook.yourdomain.com` | Webhook Worker | 5679 |
+
+در `.env-main`:
+```env
+N8N_HOST=n8n.yourdomain.com
+N8N_PROTOCOL=https
+N8N_EDITOR_BASE_URL=https://n8n.yourdomain.com
+WEBHOOK_URL=https://n8n-webhook.yourdomain.com
+```
+
+---
+
+### 📊 Resource Limits
+
+| سرویس | Memory Limit | Memory Reserved |
+|-------|-------------|-----------------|
+| n8n Main | 2GB | 1GB |
+| Worker | 1GB | 512MB |
+| Webhook Worker | 1GB | 512MB |
+
+---
+
+### 🔧 تنظیمات PgBouncer
+
+فایل `pgbouncer.ini`:
+
+| Setting | مقدار | توضیح |
+|---------|-------|-------|
+| `pool_mode` | transaction | هر query اتصال جدید می‌گیرد |
+| `max_client_conn` | 1000 | حداکثر اتصال از clients |
+| `default_pool_size` | 50 | اتصالات همزمان به PostgreSQL |
+| `min_pool_size` | 5 | حداقل اتصالات باز |
+| `reserve_pool_size` | 20 | اتصالات اضطراری |
+
+فایل `userlist.txt`:
+```txt
+"n8n_user" "YOUR_DB_PASSWORD"
+```
+
+> ⚠️ برای امنیت بیشتر از md5 hash استفاده کنید: `"n8n_user" "md5<hash>"`
+>
+> تولید md5: `echo -n "YOUR_PASSWORD+n8n_user" | md5sum`
+
+---
+
+### ▶️ راه‌اندازی
+
+#### راه سریع (پیشنهادی)
+
+```bash
+git clone https://github.com/ChosoMeister/scalable-n8n-production-ready.git
+cd scalable-n8n-production-ready
+./setup.sh
+docker compose up -d
+```
+
+> اسکریپت setup به صورت خودکار پسوردهای امن تولید می‌کنه و همه فایل‌ها رو آماده می‌کنه.
+
+#### راه دستی
+
+```bash
+# 1. Clone
+git clone https://github.com/ChosoMeister/scalable-n8n-production-ready.git
+cd scalable-n8n-production-ready
+
+# 2. کپی فایل‌های نمونه
+cp .env.example .env
+cp pgbouncer.ini.example pgbouncer.ini
+cp userlist.txt.example userlist.txt
+
+# 3. تولید پسوردهای امن و جایگزینی در فایل‌ها
+nano .env           # تمام تنظیمات اینجاست
+nano pgbouncer.ini  # DB Password
+nano userlist.txt   # DB Password
+
+# 4. شروع
+docker compose up -d
+```
+
+#### دسترسی
+
+- **n8n Editor:** http://localhost:5678
+- **Webhook Worker:** http://localhost:5679
+
+---
+
+### 📌 Scale کردن Workers
+
+```bash
+# 3 worker
+docker compose up -d --scale worker=3
+
+# 5 worker
+docker compose up -d --scale worker=5
+```
+
+**محاسبه ظرفیت:**
+```
+Workers × Concurrency = Total Parallel Executions
+5 workers × 10 concurrency = 50 workflow همزمان
+```
+
+---
+
+### 🔄 Workflow اجرا
+
+```
+1. Trigger/Webhook ─────► n8n Main
+                              │
+2.                     Create Job
+                              │
+3.                    ─────► Redis Queue
+                              │
+4.                     Worker picks job
+                              │
+5. Worker ◄───────────────────┘
+      │
+6.    └───► Get workflow from PostgreSQL
+      │
+7.    └───► Execute workflow
+      │
+8.    └───► Save results to PostgreSQL
+      │
+9.    └───► Notify Redis (complete)
+```
+
+---
+
+### 📋 تنظیمات Execution
 
 در `.env-main`:
 
@@ -258,7 +624,7 @@ Workers × Concurrency = Total Parallel Executions
 
 ---
 
-## 🕐 Timezone
+### 🕐 Timezone
 
 ```env
 GENERIC_TIMEZONE=Asia/Tehran
@@ -269,7 +635,7 @@ TZ=Asia/Tehran
 
 ---
 
-## 🔍 دستورات مفید
+### 🔍 دستورات مفید
 
 ```bash
 # مشاهده وضعیت
@@ -295,9 +661,9 @@ docker compose config
 
 ---
 
-## ⚠️ نکات مهم
+### ⚠️ نکات مهم
 
-### 1. Reverse Proxy
+#### 1. Reverse Proxy
 
 این setup **شامل reverse proxy نیست**. باید جداگانه تنظیم کنید:
 - Nginx
@@ -305,13 +671,13 @@ docker compose config
 - Caddy
 - HAProxy
 
-### 2. SSL/HTTPS
+#### 2. SSL/HTTPS
 
 حتماً از HTTPS استفاده کنید:
 - `N8N_SECURE_COOKIE=true` نیاز به HTTPS دارد
 - Webhooks امن نیستند بدون HTTPS
 
-### 3. Backup
+#### 3. Backup
 
 Volume ها را backup کنید:
 - `db_storage` - دیتابیس
@@ -322,7 +688,7 @@ Volume ها را backup کنید:
 docker compose exec postgres pg_dump -U lucas n8n > backup.sql
 ```
 
-### 4. N8N_TRUSTED_PROXIES
+#### 4. N8N_TRUSTED_PROXIES
 
 اگر پشت reverse proxy هستید:
 ```env
@@ -333,7 +699,7 @@ N8N_TRUSTED_PROXIES=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
 
 ---
 
-## 📚 منابع
+### 📚 منابع
 
 - [n8n Documentation](https://docs.n8n.io/)
 - [n8n Queue Mode](https://docs.n8n.io/hosting/scaling/queue-mode/)
@@ -342,7 +708,7 @@ N8N_TRUSTED_PROXIES=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
 
 ---
 
-## ✅ Checklist قبل از Production
+### ✅ Checklist قبل از Production
 
 - [ ] `N8N_ENCRYPTION_KEY` منحصر به فرد تنظیم شده
 - [ ] `REDIS_PASSWORD` قوی تنظیم شده
