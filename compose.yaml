@@ -49,7 +49,7 @@ services:
     sysctls:
       - vm.overcommit_memory=1
     command: >
-      sh -c "redis-server --requirepass $${REDIS_PASSWORD:-changeme}"
+      sh -c "redis-server --requirepass $${REDIS_PASSWORD:-changeme} --maxmemory 256mb --maxmemory-policy allkeys-lru --appendonly yes"
     volumes:
       - redis_storage:/data
     healthcheck:

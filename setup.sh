@@ -286,6 +286,11 @@ OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=true
 # Task Runners (for Code nodes - n8n 2.0)
 N8N_RUNNERS_ENABLED=true
 N8N_RUNNERS_MODE=internal
+N8N_METRICS=true
+
+# Concurrency & Pooling (Optimized for Production)
+DB_POSTGRESDB_POOL_SIZE=20
+N8N_CONCURRENCY_PRODUCTION_LIMIT=50
 
 # Execution Settings
 EXECUTIONS_TIMEOUT=3600
