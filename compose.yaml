@@ -2,9 +2,9 @@ services:
   postgres:
     image: postgres:17
     # ports:
-    #   - "5432:5432" Uncomment if you want to access the DB directly
+    #   - "5432:5432" # Uncomment if you want to access the DB directly
     restart: always
-    env_file: .env-db
+    env_file: .env
     volumes:
       - db_storage:/var/lib/postgresql/data
       - ./init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
@@ -17,9 +17,7 @@ services:
   pgbouncer:
     image: edoburu/pgbouncer:v1.24.1-p0
     restart: always
-    env_file: .env-db
-    environment:
-      - AUTH_FILE=/etc/pgbouncer/userlist.txt
+    env_file: .env
     # ports:
     #   - "6432:6432"   # Expose pgbouncer port
     volumes:
@@ -37,8 +35,7 @@ services:
   redis:
     image: redis:7-alpine
     restart: always
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-changeme}
+    env_file: .env
     command: >
       sh -c "redis-server --requirepass $${REDIS_PASSWORD:-changeme}"
     volumes:
@@ -53,7 +50,7 @@ services:
   n8n:
     image: n8nio/n8n:stable
     restart: always
-    env_file: .env-main
+    env_file: .env
     volumes:
       - n8n_storage:/home/node/.n8n
     depends_on:
@@ -74,7 +71,7 @@ services:
   worker:
     image: n8nio/n8n:stable
     restart: always
-    env_file: .env-worker
+    env_file: .env
     command: worker --concurrency=10
     depends_on:
       pgbouncer:
@@ -94,7 +91,7 @@ services:
   webhook-worker:
     image: n8nio/n8n:stable
     restart: always
-    env_file: .env-worker
+    env_file: .env
     command: webhook
     depends_on:
       pgbouncer:

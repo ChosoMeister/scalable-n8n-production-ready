@@ -9,10 +9,6 @@ Thumbs.db
 
 # ===== Environment Files (contain secrets) =====
 .env
-.env-db
-.env-main
-.env-worker
-.env-redis
 .env.local
 .env.*.local
 

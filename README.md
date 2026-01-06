@@ -57,12 +57,8 @@
 ```
 scalable-n8n-production-ready/
 ├── compose.yaml             # Docker Compose اصلی
-├── setup.sh                 # اسکریپت نصب خودکار
-├── .env.example             # نمونه متغیرهای docker-compose
-├── .env-main.example        # نمونه تنظیمات n8n main
-├── .env-worker.example      # نمونه تنظیمات workers
-├── .env-db.example          # نمونه تنظیمات PostgreSQL + PgBouncer  
-├── .env-redis.example       # نمونه پسورد Redis
+├── setup.sh                 # ✨ اسکریپت نصب خودکار
+├── .env.example             # نمونه تنظیمات (همه در یک فایل)
 ├── .gitignore               # فایل‌های ignore شده در git
 ├── pgbouncer.ini.example    # نمونه تنظیمات PgBouncer
 ├── userlist.txt.example     # نمونه یوزرهای PgBouncer
@@ -170,63 +166,36 @@ WEBHOOK_URL=https://n8n-webhook.yourdomain.com
 ### راه سریع (پیشنهادی)
 
 ```bash
-# Clone و اجرای اسکریپت setup
 git clone https://github.com/ChosoMeister/scalable-n8n-production-ready.git
 cd scalable-n8n-production-ready
 ./setup.sh
-```
-
-> اسکریپت setup به صورت خودکار پسوردهای امن تولید می‌کنه و فایل‌ها رو آماده می‌کنه.
-
-### راه دستی
-
-### 1. Clone و تنظیم
-
-```bash
-git clone https://github.com/ChosoMeister/scalable-n8n-production-ready.git
-cd scalable-n8n-production-ready
-```
-
-### 2. کپی فایل‌های تنظیمات
-
-```bash
-# کپی فایل‌های نمونه
-cp .env.example .env
-cp .env-main.example .env-main
-cp .env-worker.example .env-worker
-cp .env-db.example .env-db
-cp .env-redis.example .env-redis
-cp pgbouncer.ini.example pgbouncer.ini
-cp userlist.txt.example userlist.txt
-```
-
-### 3. ویرایش فایل‌های env
-
-> ⚠️ **مهم**: پسوردها باید در تمام فایل‌ها یکسان باشن!
-
-```bash
-# تولید پسوردهای امن
-openssl rand -base64 24  # Database Password
-openssl rand -base64 24  # Redis Password
-openssl rand -hex 32     # Encryption Key
-
-# ویرایش فایل‌ها
-nano .env           # REDIS_PASSWORD
-nano .env-db        # POSTGRES_PASSWORD
-nano .env-redis     # REDIS_PASSWORD
-nano .env-main      # همه پسوردها
-nano .env-worker    # همه پسوردها
-nano pgbouncer.ini  # DB Password
-nano userlist.txt   # DB Password
-```
-
-### 4. شروع سرویس‌ها
-
-```bash
 docker compose up -d
 ```
 
-### 5. دسترسی
+> اسکریپت setup به صورت خودکار پسوردهای امن تولید می‌کنه و همه فایل‌ها رو آماده می‌کنه.
+
+### راه دستی
+
+```bash
+# 1. Clone
+git clone https://github.com/ChosoMeister/scalable-n8n-production-ready.git
+cd scalable-n8n-production-ready
+
+# 2. کپی فایل‌های نمونه
+cp .env.example .env
+cp pgbouncer.ini.example pgbouncer.ini
+cp userlist.txt.example userlist.txt
+
+# 3. تولید پسوردهای امن و جایگزینی در فایل‌ها
+nano .env           # تمام تنظیمات اینجاست
+nano pgbouncer.ini  # DB Password
+nano userlist.txt   # DB Password
+
+# 4. شروع
+docker compose up -d
+```
+
+### دسترسی
 
 - **n8n Editor:** http://localhost:5678
 - **Webhook Worker:** http://localhost:5679
