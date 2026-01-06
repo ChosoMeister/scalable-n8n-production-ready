@@ -24,7 +24,7 @@ services:
       - ./pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
       - ./userlist.txt:/etc/pgbouncer/userlist.txt:ro
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -h localhost -p 6432 || exit 1" ]
+      test: [ "CMD-SHELL", "pg_isready -h localhost -p 6432 -U $${DB_POSTGRESDB_USER:-n8n_user} || exit 1" ]
       interval: 5s
       timeout: 5s
       retries: 10
