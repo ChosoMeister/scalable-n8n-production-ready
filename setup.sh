@@ -19,16 +19,75 @@ if [ -f ".env" ]; then
     echo ""
 fi
 
-# Ask about password generation
+# ============================================================================
+# Domain Configuration
+# ============================================================================
+echo "🌐 Domain Configuration"
+echo ""
+echo "   Examples:"
+echo "   - n8n.example.com"
+echo "   - n8n.mycompany.ir"
+echo "   - localhost (for local testing)"
+echo ""
+read -p "   Enter your n8n domain: " N8N_DOMAIN
+
+# If empty, use localhost
+if [ -z "$N8N_DOMAIN" ]; then
+    N8N_DOMAIN="localhost"
+fi
+
+# Determine protocol
+if [ "$N8N_DOMAIN" = "localhost" ] || [ "$N8N_DOMAIN" = "127.0.0.1" ]; then
+    N8N_PROTOCOL="http"
+    echo "   ℹ️  Using HTTP for localhost"
+else
+    echo ""
+    read -p "   Use HTTPS? (Y/n): " use_https
+    if [ "$use_https" = "n" ] || [ "$use_https" = "N" ]; then
+        N8N_PROTOCOL="http"
+    else
+        N8N_PROTOCOL="https"
+    fi
+fi
+
+# Webhook domain (can be same or different)
+echo ""
+echo "   Webhook domain can be:"
+echo "   1) Same as n8n domain (${N8N_DOMAIN})"
+echo "   2) Different domain (e.g., webhook.${N8N_DOMAIN})"
+echo ""
+read -p "   Use same domain for webhooks? (Y/n): " same_webhook
+if [ "$same_webhook" = "n" ] || [ "$same_webhook" = "N" ]; then
+    read -p "   Enter webhook domain: " WEBHOOK_DOMAIN
+    if [ -z "$WEBHOOK_DOMAIN" ]; then
+        WEBHOOK_DOMAIN="$N8N_DOMAIN"
+    fi
+else
+    WEBHOOK_DOMAIN="$N8N_DOMAIN"
+fi
+
+# Build URLs
+N8N_EDITOR_BASE_URL="${N8N_PROTOCOL}://${N8N_DOMAIN}"
+WEBHOOK_URL="${N8N_PROTOCOL}://${WEBHOOK_DOMAIN}"
+
+echo ""
+echo "   ✅ URLs configured:"
+echo "      Editor:  ${N8N_EDITOR_BASE_URL}"
+echo "      Webhook: ${WEBHOOK_URL}"
+echo ""
+
+# ============================================================================
+# Password Configuration
+# ============================================================================
 echo "🔐 Password Configuration"
 echo "   1) Generate secure passwords automatically (recommended)"
 echo "   2) Enter custom passwords manually"
 echo ""
-read -p "Choose option [1/2]: " password_option
+read -p "   Choose option [1/2]: " password_option
 
 if [ "$password_option" = "2" ]; then
     echo ""
-    echo "Enter your passwords:"
+    echo "   Enter your passwords:"
     
     # Database password
     while true; do
@@ -71,7 +130,7 @@ if [ "$password_option" = "2" ]; then
     fi
 else
     echo ""
-    echo "🔐 Generating secure passwords..."
+    echo "   🔐 Generating secure passwords..."
     DB_PASSWORD=$(openssl rand -base64 24 | tr -d '/+=' | head -c 32)
     REDIS_PASSWORD=$(openssl rand -base64 24 | tr -d '/+=' | head -c 32)
     ENCRYPTION_KEY=$(openssl rand -hex 32)
@@ -144,12 +203,12 @@ QUEUE_HEALTH_CHECK_ACTIVE=true
 # ==============================================================================
 NODE_ENV=production
 
-# URLs - UPDATE THESE FOR YOUR DOMAIN
-N8N_HOST=n8n.yourdomain.com
+# URLs
+N8N_HOST=${N8N_DOMAIN}
 N8N_PORT=5678
-N8N_PROTOCOL=https
-N8N_EDITOR_BASE_URL=https://n8n.yourdomain.com
-WEBHOOK_URL=https://n8n-webhook.yourdomain.com
+N8N_PROTOCOL=${N8N_PROTOCOL}
+N8N_EDITOR_BASE_URL=${N8N_EDITOR_BASE_URL}
+WEBHOOK_URL=${WEBHOOK_URL}
 
 # Security
 N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
@@ -207,18 +266,24 @@ EOF
 echo ""
 echo "✅ Setup complete!"
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📋 Your credentials (save these securely!):"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "   Database Password: ${DB_PASSWORD}"
-echo "   Redis Password:    ${REDIS_PASSWORD}"
-echo "   Encryption Key:    ${ENCRYPTION_KEY}"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📋 Configuration Summary"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "⚠️  IMPORTANT: Update the domain settings in .env:"
-echo "   - N8N_HOST"
-echo "   - N8N_EDITOR_BASE_URL"
-echo "   - WEBHOOK_URL"
+echo "   🌐 URLs:"
+echo "      n8n Editor:  ${N8N_EDITOR_BASE_URL}"
+echo "      Webhooks:    ${WEBHOOK_URL}"
+echo ""
+echo "   🔐 Credentials (save these securely!):"
+echo "      Database Password: ${DB_PASSWORD}"
+echo "      Redis Password:    ${REDIS_PASSWORD}"
+echo "      Encryption Key:    ${ENCRYPTION_KEY}"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 echo "🚀 To start the services, run:"
 echo "   docker compose up -d"
+echo ""
+if [ "$N8N_PROTOCOL" = "https" ]; then
+echo "⚠️  Remember to set up a reverse proxy (Nginx/Traefik) with SSL!"
+fi
