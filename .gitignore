@@ -1,0 +1,40 @@
+# ===== OS Generated Files =====
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ===== Environment Files (contain secrets) =====
+.env
+.env-db
+.env-main
+.env-worker
+.env-redis
+.env.local
+.env.*.local
+
+# ===== IDE and Editor =====
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ===== Logs =====
+*.log
+logs/
+
+# ===== Docker (optional local files) =====
+docker-compose.override.yml
+docker-compose.override.yaml
+
+# ===== Backup files =====
+*.bak
+*.backup
+*.tmp
+
+# ===== n8n local data (if any) =====
+.n8n/
