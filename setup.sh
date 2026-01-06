@@ -159,6 +159,23 @@ fi
 echo ""
 echo "📁 Creating configuration files..."
 
+# Check if pgbouncer.ini or userlist.txt are directories (common mistake)
+if [ -d "pgbouncer.ini" ]; then
+    echo ""
+    echo "❌ Error: 'pgbouncer.ini' exists as a directory!"
+    echo "   Please remove it first: rm -rf pgbouncer.ini"
+    echo ""
+    exit 1
+fi
+
+if [ -d "userlist.txt" ]; then
+    echo ""
+    echo "❌ Error: 'userlist.txt' exists as a directory!"
+    echo "   Please remove it first: rm -rf userlist.txt"
+    echo ""
+    exit 1
+fi
+
 # Create .env
 cat > .env << EOF
 # ==============================================================================
