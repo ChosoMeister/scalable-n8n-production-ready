@@ -6,6 +6,7 @@
 set -e
 
 echo "🚀 Setting up n8n production environment..."
+echo ""
 
 # Check if .env already exists
 if [ -f ".env" ]; then
@@ -15,14 +16,68 @@ if [ -f ".env" ]; then
         echo "Aborted."
         exit 1
     fi
+    echo ""
 fi
 
-# Generate secure passwords
-echo "🔐 Generating secure passwords..."
-DB_PASSWORD=$(openssl rand -base64 24 | tr -d '/+=' | head -c 32)
-REDIS_PASSWORD=$(openssl rand -base64 24 | tr -d '/+=' | head -c 32)
-ENCRYPTION_KEY=$(openssl rand -hex 32)
+# Ask about password generation
+echo "🔐 Password Configuration"
+echo "   1) Generate secure passwords automatically (recommended)"
+echo "   2) Enter custom passwords manually"
+echo ""
+read -p "Choose option [1/2]: " password_option
 
+if [ "$password_option" = "2" ]; then
+    echo ""
+    echo "Enter your passwords:"
+    
+    # Database password
+    while true; do
+        read -sp "   Database Password (min 8 chars): " DB_PASSWORD
+        echo ""
+        if [ ${#DB_PASSWORD} -ge 8 ]; then
+            break
+        else
+            echo "   ❌ Password too short. Please enter at least 8 characters."
+        fi
+    done
+    
+    # Redis password
+    while true; do
+        read -sp "   Redis Password (min 8 chars): " REDIS_PASSWORD
+        echo ""
+        if [ ${#REDIS_PASSWORD} -ge 8 ]; then
+            break
+        else
+            echo "   ❌ Password too short. Please enter at least 8 characters."
+        fi
+    done
+    
+    # Encryption key
+    echo ""
+    read -p "   Generate encryption key automatically? (Y/n): " gen_enc
+    if [ "$gen_enc" = "n" ] || [ "$gen_enc" = "N" ]; then
+        while true; do
+            read -sp "   Encryption Key (min 32 chars): " ENCRYPTION_KEY
+            echo ""
+            if [ ${#ENCRYPTION_KEY} -ge 32 ]; then
+                break
+            else
+                echo "   ❌ Key too short. Please enter at least 32 characters."
+            fi
+        done
+    else
+        ENCRYPTION_KEY=$(openssl rand -hex 32)
+        echo "   ✅ Encryption key generated automatically"
+    fi
+else
+    echo ""
+    echo "🔐 Generating secure passwords..."
+    DB_PASSWORD=$(openssl rand -base64 24 | tr -d '/+=' | head -c 32)
+    REDIS_PASSWORD=$(openssl rand -base64 24 | tr -d '/+=' | head -c 32)
+    ENCRYPTION_KEY=$(openssl rand -hex 32)
+fi
+
+echo ""
 echo "📁 Creating configuration files..."
 
 # Create .env
@@ -152,10 +207,13 @@ EOF
 echo ""
 echo "✅ Setup complete!"
 echo ""
-echo "📋 Generated credentials (save these securely!):"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📋 Your credentials (save these securely!):"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "   Database Password: ${DB_PASSWORD}"
 echo "   Redis Password:    ${REDIS_PASSWORD}"
 echo "   Encryption Key:    ${ENCRYPTION_KEY}"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 echo "⚠️  IMPORTANT: Update the domain settings in .env:"
 echo "   - N8N_HOST"
