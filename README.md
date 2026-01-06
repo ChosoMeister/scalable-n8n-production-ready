@@ -55,16 +55,17 @@
 ## 📂 ساختار پروژه
 
 ```
-scalable-n8n/
-├── compose.yaml          # Docker Compose اصلی
-├── .env-main            # تنظیمات n8n main
-├── .env-worker          # تنظیمات workers
-├── .env-db              # تنظیمات PostgreSQL + PgBouncer  
-├── .env-redis           # پسورد Redis
-├── pgbouncer.ini        # تنظیمات PgBouncer
-├── userlist.txt         # یوزرهای PgBouncer
-├── init-data.sh         # اسکریپت ایجاد یوزر DB
-└── README.md            # این فایل
+scalable-n8n-production-ready/
+├── compose.yaml           # Docker Compose اصلی
+├── .env-main.example      # نمونه تنظیمات n8n main
+├── .env-worker.example    # نمونه تنظیمات workers
+├── .env-db.example        # نمونه تنظیمات PostgreSQL + PgBouncer  
+├── .env-redis.example     # نمونه پسورد Redis
+├── .gitignore             # فایل‌های ignore شده در git
+├── pgbouncer.ini          # تنظیمات PgBouncer
+├── userlist.txt           # یوزرهای PgBouncer
+├── init-data.sh           # اسکریپت ایجاد یوزر DB
+└── README.md              # این فایل
 ```
 
 ---
@@ -165,11 +166,21 @@ WEBHOOK_URL=https://n8n-webhook.yourdomain.com
 ### 1. Clone و تنظیم
 
 ```bash
-git clone <repo-url>
-cd scalable-n8n
+git clone https://github.com/ChosoMeister/scalable-n8n-production-ready.git
+cd scalable-n8n-production-ready
 ```
 
-### 2. ویرایش فایل‌های env
+### 2. کپی فایل‌های env
+
+```bash
+# کپی فایل‌های نمونه
+cp .env-main.example .env-main
+cp .env-worker.example .env-worker
+cp .env-db.example .env-db
+cp .env-redis.example .env-redis
+```
+
+### 3. ویرایش فایل‌های env
 
 ```bash
 # تنظیم مقادیر امن
@@ -179,13 +190,13 @@ nano .env-db
 nano .env-redis
 ```
 
-### 3. شروع سرویس‌ها
+### 4. شروع سرویس‌ها
 
 ```bash
 docker compose up -d
 ```
 
-### 4. دسترسی
+### 5. دسترسی
 
 - **n8n Editor:** http://localhost:5678
 - **Webhook Worker:** http://localhost:5679
