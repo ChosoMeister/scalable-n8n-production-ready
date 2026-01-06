@@ -48,7 +48,7 @@ services:
 
   # The N8N Editor UI and API
   n8n:
-    image: n8nio/n8n:stable
+    image: ghcr.io/chosomeister/n8n:enterprise
     restart: always
     env_file: .env
     volumes:
@@ -69,7 +69,7 @@ services:
 
   # The N8N Worker - for executing workflows
   worker:
-    image: n8nio/n8n:stable
+    image: ghcr.io/chosomeister/n8n:enterprise
     restart: always
     env_file: .env
     command: worker --concurrency=10
@@ -89,7 +89,7 @@ services:
 
   # The N8N Webhook Worker - for receiving webhooks
   webhook-worker:
-    image: n8nio/n8n:stable
+    image: ghcr.io/chosomeister/n8n:enterprise
     restart: always
     env_file: .env
     command: webhook

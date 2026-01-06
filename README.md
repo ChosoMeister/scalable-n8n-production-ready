@@ -75,9 +75,9 @@ scalable-n8n-production-ready/
 | **PostgreSQL 17** | `postgres:17` | دیتابیس اصلی | 5432 (internal) |
 | **PgBouncer** | `edoburu/pgbouncer:v1.24.1-p0` | Connection Pooling | 6432 (internal) |
 | **Redis** | `redis:7-alpine` | Message Queue | 6379 (internal) |
-| **n8n Main** | `n8nio/n8n:stable` | Editor/API | 5678 |
-| **Worker** | `n8nio/n8n:stable` | اجرای workflows | - |
-| **Webhook Worker** | `n8nio/n8n:stable` | دریافت webhooks | 5679 |
+| **n8n Main** | `ghcr.io/chosomeister/n8n:enterprise` | Editor/API | 5678 |
+| **Worker** | `ghcr.io/chosomeister/n8n:enterprise` | اجرای workflows | - |
+| **Webhook Worker** | `ghcr.io/chosomeister/n8n:enterprise` | دریافت webhooks | 5679 |
 
 ---
 
