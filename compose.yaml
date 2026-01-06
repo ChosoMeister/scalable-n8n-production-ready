@@ -46,8 +46,6 @@ services:
     image: redis:7-alpine
     restart: always
     env_file: .env
-    sysctls:
-      - vm.overcommit_memory=1
     command: >
       sh -c "redis-server --requirepass $${REDIS_PASSWORD:-changeme} --maxmemory 256mb --maxmemory-policy allkeys-lru --appendonly yes"
     volumes:
