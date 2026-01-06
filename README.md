@@ -57,6 +57,8 @@
 ```
 scalable-n8n-production-ready/
 ├── compose.yaml             # Docker Compose اصلی
+├── setup.sh                 # اسکریپت نصب خودکار
+├── .env.example             # نمونه متغیرهای docker-compose
 ├── .env-main.example        # نمونه تنظیمات n8n main
 ├── .env-worker.example      # نمونه تنظیمات workers
 ├── .env-db.example          # نمونه تنظیمات PostgreSQL + PgBouncer  
@@ -76,7 +78,7 @@ scalable-n8n-production-ready/
 |-------|-------|-------|------|
 | **PostgreSQL 17** | `postgres:17` | دیتابیس اصلی | 5432 (internal) |
 | **PgBouncer** | `edoburu/pgbouncer:v1.24.1-p0` | Connection Pooling | 6432 (internal) |
-| **Redis 8.2** | `redis:8.2` | Message Queue | 6379 (internal) |
+| **Redis** | `redis:7-alpine` | Message Queue | 6379 (internal) |
 | **n8n Main** | `n8nio/n8n:stable` | Editor/API | 5678 |
 | **Worker** | `n8nio/n8n:stable` | اجرای workflows | - |
 | **Webhook Worker** | `n8nio/n8n:stable` | دریافت webhooks | 5679 |
@@ -165,6 +167,19 @@ WEBHOOK_URL=https://n8n-webhook.yourdomain.com
 
 ## ▶️ راه‌اندازی
 
+### راه سریع (پیشنهادی)
+
+```bash
+# Clone و اجرای اسکریپت setup
+git clone https://github.com/ChosoMeister/scalable-n8n-production-ready.git
+cd scalable-n8n-production-ready
+./setup.sh
+```
+
+> اسکریپت setup به صورت خودکار پسوردهای امن تولید می‌کنه و فایل‌ها رو آماده می‌کنه.
+
+### راه دستی
+
 ### 1. Clone و تنظیم
 
 ```bash
@@ -176,6 +191,7 @@ cd scalable-n8n-production-ready
 
 ```bash
 # کپی فایل‌های نمونه
+cp .env.example .env
 cp .env-main.example .env-main
 cp .env-worker.example .env-worker
 cp .env-db.example .env-db
@@ -186,12 +202,22 @@ cp userlist.txt.example userlist.txt
 
 ### 3. ویرایش فایل‌های env
 
+> ⚠️ **مهم**: پسوردها باید در تمام فایل‌ها یکسان باشن!
+
 ```bash
-# تنظیم مقادیر امن
-nano .env-main
-nano .env-worker
-nano .env-db
-nano .env-redis
+# تولید پسوردهای امن
+openssl rand -base64 24  # Database Password
+openssl rand -base64 24  # Redis Password
+openssl rand -hex 32     # Encryption Key
+
+# ویرایش فایل‌ها
+nano .env           # REDIS_PASSWORD
+nano .env-db        # POSTGRES_PASSWORD
+nano .env-redis     # REDIS_PASSWORD
+nano .env-main      # همه پسوردها
+nano .env-worker    # همه پسوردها
+nano pgbouncer.ini  # DB Password
+nano userlist.txt   # DB Password
 ```
 
 ### 4. شروع سرویس‌ها
