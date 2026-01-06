@@ -70,20 +70,43 @@ else
     fi
 fi
 
-# Webhook domain (can be same or different)
+# Webhook domain configuration
 echo ""
+
+# Calculate default webhook domain suggestion
+if [[ "$N8N_DOMAIN" == "localhost" ]]; then
+    DEFAULT_WEBHOOK_DOMAIN="localhost"
+elif [[ "$N8N_DOMAIN" == *.* ]]; then
+    SUBDOMAIN="${N8N_DOMAIN%%.*}"
+    REST_OF_DOMAIN="${N8N_DOMAIN#*.}"
+    DEFAULT_WEBHOOK_DOMAIN="${SUBDOMAIN}-webhook.${REST_OF_DOMAIN}"
+else
+    DEFAULT_WEBHOOK_DOMAIN="${N8N_DOMAIN}-webhook"
+fi
+
 echo "   Webhook domain can be:"
-echo "   1) Same as n8n domain (${N8N_DOMAIN})"
-echo "   2) Different domain (e.g., webhook.${N8N_DOMAIN})"
+echo "   1) Default domain Address (${DEFAULT_WEBHOOK_DOMAIN})"
+echo "   2) Same as n8n domain (${N8N_DOMAIN})"
+echo "   3) Different domain (e.g., webhook.${N8N_DOMAIN})"
 echo ""
-read -p "   Use same domain for webhooks? (Y/n): " same_webhook
-if [ "$same_webhook" = "n" ] || [ "$same_webhook" = "N" ]; then
+
+read -p "   Choose option [1-3] (default: 1): " webhook_option
+
+# Default to option 1 if empty
+if [ -z "$webhook_option" ]; then
+    webhook_option="1"
+fi
+
+if [ "$webhook_option" = "1" ]; then
+    WEBHOOK_DOMAIN="$DEFAULT_WEBHOOK_DOMAIN"
+elif [ "$webhook_option" = "2" ]; then
+    WEBHOOK_DOMAIN="$N8N_DOMAIN"
+else
+    # Option 3 or invalid input (treat as custom)
     read -p "   Enter webhook domain: " WEBHOOK_DOMAIN
     if [ -z "$WEBHOOK_DOMAIN" ]; then
         WEBHOOK_DOMAIN="$N8N_DOMAIN"
     fi
-else
-    WEBHOOK_DOMAIN="$N8N_DOMAIN"
 fi
 
 # Build URLs
